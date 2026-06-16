@@ -10,7 +10,7 @@
 
 > Natural language control for NVIDIA Isaac Sim through the [Model Context Protocol](https://modelcontextprotocol.io/) (MCP).
 
-Connect any MCP-compatible IDE (Cursor, VS Code, Claude Code, Windsurf, JetBrains) to a running Isaac Sim instance and control it with plain-English prompts -- create robots, build scenes, run simulations, and debug physics all from your editor.
+Connect any MCP-compatible IDE (Cursor, VS Code, Claude Code, Windsurf, JetBrains, Antigravity IDE) to a running Isaac Sim instance and control it with plain-English prompts -- create robots, build scenes, run simulations, and debug physics all from your editor.
 
 ![Robot Simulate Demo](https://raw.githubusercontent.com/whats2000/isaacsim-mcp-server/main/media/franka_pick_place.gif)
 
@@ -42,7 +42,10 @@ This installs the MCP server and the `isaacsim-mcp-server` CLI. You still need t
 ```bash
 git clone https://github.com/whats2000/isaacsim-mcp-server
 cd isaacsim-mcp-server
+# Linux
 ./scripts/setup_python_env.sh
+# Windows
+scripts\setup_python_env.bat
 ```
 
 ### Requirements
@@ -52,10 +55,10 @@ cd isaacsim-mcp-server
 | NVIDIA Isaac Sim | `5.1.0` |
 | Python | `3.10+` |
 | `uv` | latest (for source install) |
-| Platform | Linux (Ubuntu 22.04+) |
+| Platform | Linux (Ubuntu 22.04+) or Windows 11 |
 
 > [!IMPORTANT]
-> Currently only **Linux** is supported. Windows support is planned.
+> **Linux and Windows 11** are supported.
 > macOS is not supported because NVIDIA Isaac Sim does not run on macOS.
 
 > [!NOTE]
@@ -70,14 +73,26 @@ cd isaacsim-mcp-server
 
 If you installed from source:
 
+**Linux:**
 ```bash
 ./scripts/setup_python_env.sh
 ```
 
+**Windows:**
+```cmd
+scripts\setup_python_env.bat
+```
+
 ### 2. Launch Isaac Sim with the extension
 
+**Linux:**
 ```bash
 ./scripts/run_isaac_sim.sh
+```
+
+**Windows:**
+```cmd
+scripts\run_isaac_sim.bat
 ```
 
 You should see in the logs:
@@ -103,14 +118,61 @@ export NVIDIA_API_KEY="<your nvidia api key>"
 Add the MCP server to your editor. Replace the path with your actual repo location.
 
 <details>
+<summary><strong>Antigravity IDE</strong></summary>
+
+Create `.vscode/mcp.json` in your workspace, or add to your Antigravity MCP Settings:
+
+**Linux:**
+```json
+{
+  "mcpServers": {
+    "isaac-sim": {
+      "command": "/path/to/isaacsim-mcp-server/scripts/run_mcp_server.sh"
+    }
+  }
+}
+```
+
+**Windows:**
+```json
+{
+  "mcpServers": {
+    "isaac-sim": {
+      "command": "cmd.exe",
+      "args": [
+        "/c",
+        "C:\\path\\to\\isaacsim-mcp-server\\scripts\\run_mcp_server.bat"
+      ]
+    }
+  }
+}
+```
+
+</details>
+
+<details>
 <summary><strong>Claude Code (CLI)</strong></summary>
 
+**Linux:**
 ```bash
 claude mcp add isaac-sim /path/to/isaacsim-mcp-server/scripts/run_mcp_server.sh
 ```
 
-Or edit `~/.claude.json` / `.mcp.json`:
+**Windows:**
+```cmd
+claude mcp add isaac-sim cmd.exe /c C:\path\to\isaacsim-mcp-server\scripts\run_mcp_server.bat
+```
 
+Or edit `~/.claude.json` / `.mcp.json` (adjust path as needed).
+
+</details>
+
+<details>
+<summary><strong>VS Code / Cursor / Windsurf</strong></summary>
+
+Add to your MCP settings file (e.g., `.vscode/mcp.json` or `~/.cursor/mcp.json`):
+
+**Linux:**
 ```json
 {
   "mcpServers": {
@@ -121,35 +183,16 @@ Or edit `~/.claude.json` / `.mcp.json`:
 }
 ```
 
-</details>
-
-<details>
-<summary><strong>VS Code</strong></summary>
-
-Create `.vscode/mcp.json` in your workspace:
-
-```json
-{
-  "servers": {
-    "isaac-sim": {
-      "command": "/path/to/isaacsim-mcp-server/scripts/run_mcp_server.sh"
-    }
-  }
-}
-```
-
-</details>
-
-<details>
-<summary><strong>Cursor</strong></summary>
-
-Open **Cursor Settings > MCP**, or edit `~/.cursor/mcp.json`:
-
+**Windows:**
 ```json
 {
   "mcpServers": {
     "isaac-sim": {
-      "command": "/path/to/isaacsim-mcp-server/scripts/run_mcp_server.sh"
+      "command": "cmd.exe",
+      "args": [
+        "/c",
+        "C:\\path\\to\\isaacsim-mcp-server\\scripts\\run_mcp_server.bat"
+      ]
     }
   }
 }
@@ -166,6 +209,7 @@ Edit the config file for your platform:
 - Windows: `%APPDATA%\Claude\claude_desktop_config.json`
 - Linux: `~/.config/Claude/claude_desktop_config.json`
 
+**Linux:**
 ```json
 {
   "mcpServers": {
@@ -176,18 +220,16 @@ Edit the config file for your platform:
 }
 ```
 
-</details>
-
-<details>
-<summary><strong>Windsurf</strong></summary>
-
-Open **Windsurf Settings > MCP** or edit `~/.codeium/windsurf/mcp_config.json`:
-
+**Windows:**
 ```json
 {
   "mcpServers": {
     "isaac-sim": {
-      "command": "/path/to/isaacsim-mcp-server/scripts/run_mcp_server.sh"
+      "command": "cmd.exe",
+      "args": [
+        "/c",
+        "C:\\path\\to\\isaacsim-mcp-server\\scripts\\run_mcp_server.bat"
+      ]
     }
   }
 }
@@ -304,12 +346,18 @@ Search for a rusty desk, load the best result near [0, 5, 0], scaled to [2, 2, 2
 
 Run multiple Isaac Sim sessions side by side. Each uses a different port (auto-assigned from `8766`).
 
+**Linux:**
 ```bash
 # First instance (default port 8766)
 claude mcp add isaac-sim /path/to/isaacsim-mcp-server/scripts/run_mcp_server.sh
 
 # Second instance (port 8767)
 claude mcp add isaac-sim-2 -e ISAAC_MCP_PORT=8767 -- /path/to/isaacsim-mcp-server/scripts/run_mcp_server.sh
+```
+
+**Windows:**
+```cmd
+claude mcp add isaac-sim cmd.exe /c C:\path\to\isaacsim-mcp-server\scripts\run_mcp_server.bat
 ```
 
 <details>
@@ -377,28 +425,44 @@ Uses `create_action_graph` with `script_file` for one-step Action Graph + Script
 
 ## Development
 
+**Linux:**
 ```bash
 # Run the MCP inspector
 ./.venv/bin/python -m mcp dev ./isaac_mcp/server.py
+```
+
+**Windows:**
+```cmd
+# Run the MCP inspector
+scripts\dev_mcp_server.bat
 ```
 
 The inspector is available at `http://localhost:5173`.
 
 ### Setup Notes
 
-| Script | Purpose | Default |
-|--------|---------|---------|
-| `setup_python_env.sh` | Create venv and install package | Python 3.10 |
-| `run_isaac_sim.sh` | Launch Isaac Sim with extension | `$HOME/isaacsim` |
-| `run_mcp_server.sh` | Start the MCP server | Port 8766 |
-| `launch_isaac_sim_mcp.sh` | Combined launcher | Auto-assigns port |
-| `dev_mcp_server.sh` | Dev server with hot-reload | Port 8766 |
+| Script | Windows | Purpose | Default |
+|--------|---------|---------|---------|
+| `setup_python_env.sh` | `setup_python_env.bat` | Create venv and install package | Python |
+| `run_isaac_sim.sh` | `run_isaac_sim.bat` | Launch Isaac Sim with extension | `$HOME/isaacsim` or `%LOCALAPPDATA%\ov\pkg\isaac-sim-5.1.0` |
+| `run_mcp_server.sh` | `run_mcp_server.bat` | Start the MCP server | Port 8766 |
+| `launch_isaac_sim_mcp.sh`| `launch_isaac_sim_mcp.bat` | Combined launcher | Auto-assigns port |
+| `dev_mcp_server.sh` | `dev_mcp_server.bat` | Dev server with hot-reload | Port 8766 |
 
 Override defaults:
 
+**Linux:**
 ```bash
 PYTHON_SPEC=3.11 ./scripts/setup_python_env.sh
 ISAACSIM_ROOT=/opt/isaacsim ./scripts/run_isaac_sim.sh
+```
+
+**Windows:**
+```cmd
+set PYTHON_SPEC=python3
+scripts\setup_python_env.bat
+set ISAACSIM_ROOT=C:\Custom\isaac-sim
+scripts\run_isaac_sim.bat
 ```
 
 <details>
